@@ -1,0 +1,3 @@
+DOCUMENT_DEFAULT_TITLE = "Document"
+TOC_DEFAULT_TITLE = "Table of contents"
+DOCUMENT_DEFAULT_LANGUAGE = "english"
