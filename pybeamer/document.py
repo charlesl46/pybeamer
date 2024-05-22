@@ -1,6 +1,6 @@
-from pybeamer.utils import EPILOGUE,create_env
+from pybeamer.utils import EPILOGUE,create_env,mono,italic
 import pybeamer.defaults as defaults
-from pybeamer.nodes import Text,Node,Frame,Section
+from pybeamer.nodes import Text,Node,Frame,Section,Block,Itemize
 
 env = create_env()
 
@@ -18,8 +18,9 @@ class Document(Node):
         self._toc_template = env.get_template("toc.jinja2")
 
         self.language = defaults.DOCUMENT_DEFAULT_LANGUAGE
+        self.theme = defaults.DOCUMENT_DEFAULT_THEME
 
-    def render(self,with_titlepage : bool = True,with_toc : bool = True) -> None:
+    def render(self,with_titlepage : bool = True,with_toc : bool = True,return_text : bool = False) -> None:
         self.text = ""
         self.text += "\n" + self._render_prologue()
 
@@ -33,6 +34,9 @@ class Document(Node):
         
         self.text += self._render_nodes()
 
+        if return_text:
+            return self.text
+
     def _render_toc(self):
         return self._toc_template.render(toc_title=self.toc_title)
 
@@ -45,7 +49,7 @@ class Document(Node):
             file.write(self.text)
 
     def _render_prologue(self):
-        self.prologue = self._prologue_template.render(language=self.language)
+        self.prologue = self._prologue_template.render(language=self.language,theme=self.theme)
         return self.prologue
     
     def add(self,node : Node):
@@ -57,16 +61,30 @@ class Document(Node):
 def main():
     d = Document()
 
-    frame = Frame("titre de la frame")
+    frame = Frame(f"titre de la frame ({italic('en italique')})")
     frame.add(Text("texte dans la frame"))
+    b = Block("titre du block")
+    b.add(Text(f"texte dans le {mono('monoblock')}"))
+    frame.add(b)
     d.add(frame)
 
     frame2 = Frame("titre de la seconde frame")
+    itz = Itemize()
+    itz.add(Text("item 1"))
+    itz.add(Text("item 2"))
+
+    itz2 = Itemize()
+    itz2.add(Text("item 3"))
+    itz.add(itz2)
+
+
+    frame2.add(itz)
     d.add(frame2)
 
     section1 = Section("section 1")
     section1.add(frame,frame2)
 
     d.add(Text("Texte de test"))
+
     d.render()
-    d.export(filepath="test.tex")
+    d.export(filepath="test_tex/test.tex")
