@@ -1,0 +1,2 @@
+class WrongNodeTypeError(Exception):
+    pass
