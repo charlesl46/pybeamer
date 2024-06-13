@@ -1,7 +1,9 @@
+from time import perf_counter
+import os
+
 from pybeamer.utils import EPILOGUE,create_env,mono,italic
 import pybeamer.defaults as defaults
 from pybeamer.nodes import Text,Node,Frame,Section,Block,Itemize
-from time import perf_counter
 
 env = create_env()
 
@@ -13,10 +15,12 @@ class Document(Node):
         self.subtitle = None
         self.institute = None
         self.toc_title = defaults.TOC_DEFAULT_TITLE
+        self.latex_engine = defaults.LATEX_DEFAULT_ENGINE
 
         self._prologue_template = env.get_template("prologue.jinja2")
         self._titlepage_template = env.get_template("titlepage.jinja2")
         self._toc_template = env.get_template("toc.jinja2")
+        self._makefile_template = env.get_template("makefile.jinja2")
 
         self.language = defaults.DOCUMENT_DEFAULT_LANGUAGE
         self.theme = defaults.DOCUMENT_DEFAULT_THEME
@@ -52,8 +56,15 @@ class Document(Node):
         return self.titlepage
     
     def export(self,filepath : str):
+        filename = os.path.basename(filepath)
+        root,ext = os.path.splitext(filename)
+        folder = os.path.dirname(filepath)
         with open(filepath,"w") as file:
             file.write(self.text)
+
+        makefile_path = os.path.join(folder,"makefile")
+        with open(makefile_path,"w") as file:
+            file.write(self._makefile_template.render(latex_engine=self.latex_engine,doc_title=filename,tab="\t",root=root))
 
     def _render_prologue(self):
         self.prologue = self._prologue_template.render(language=self.language,theme=self.theme)
