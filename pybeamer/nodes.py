@@ -5,8 +5,9 @@ from pybeamer.exceptions import WrongNodeTypeError
 env = create_env()
 
 class Node:
-
     def __init__(self) -> None:
+        if self.__class__ == Node:
+            raise Exception("A node can't be instanciated")
         self.nodes : list[Self] = []
 
     def _render_nodes(self):
