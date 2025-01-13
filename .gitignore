@@ -2,3 +2,4 @@ dist/*
 test_tex/*
 env_test/*
 test.sh
+**/__pycache__/

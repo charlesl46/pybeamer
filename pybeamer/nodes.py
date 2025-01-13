@@ -1,5 +1,5 @@
 from pybeamer.utils import create_env
-from typing import Self,Literal
+from typing import Literal
 from pybeamer.exceptions import WrongNodeTypeError
 
 env = create_env()
@@ -8,7 +8,7 @@ class Node:
     def __init__(self) -> None:
         if self.__class__ == Node:
             raise Exception("A node can't be instanciated")
-        self.nodes : list[Self] = []
+        self.nodes : list = []
 
     def _render_nodes(self):
         return "\n".join([node.to_text() for node in self.nodes])
@@ -24,7 +24,7 @@ class Node:
                 raise WrongNodeTypeError(f"Node type {node.__class__.__name__} can't be added to node type {self.__class__.__name__}")
 
     @classmethod
-    def check_authorized(cls,node : Self):
+    def check_authorized(cls,node):
         if cls.__authorized_direct_children__ is None:
             return False
         else:
@@ -81,7 +81,7 @@ class Block(Node):
         return Block.template.render(title=self.title,content=content,block_type=self.type)
 
 class Itemize(Node):
-    __authorized_direct_children__ = ["Text","Itemize"]
+    __authorized_direct_children__ = ["Text","Itemize","Enumerate"]
     template = env.get_template("itemize.jinja2")
 
     def __init__(self) -> None:
@@ -98,5 +98,21 @@ class Itemize(Node):
         items = self._render_nodes()
         return Itemize.template.render(items=items)
 
+class Enumerate(Node):
+    __authorized_direct_children__ = ["Text","Itemize","Enumerate"]
+    template = env.get_template("enumerate.jinja2")
 
+    def __init__(self) -> None:
+        super().__init__()
+
+    def _render_nodes(self):
+        for node in self.nodes:
+            text = node.to_text()
+            if node.__class__ == Text:
+                text = f"\item {text}"
+            yield text
+       
+    def to_text(self) -> str:
+        items = self._render_nodes()
+        return Itemize.template.render(items=items)
     

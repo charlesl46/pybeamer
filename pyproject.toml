@@ -1,14 +1,17 @@
-[tool.poetry]
+[project]
 name = "pybeamer"
 version = "0.1.0"
-description = "Create LaTeX beamers with Python."
-authors = ["charlesl46 <charles.lucas4665@gmail.com>"]
+description = ""
+authors = [
+    {name = "charlesl46",email = "charles.lucas4665@gmail.com"}
+]
 readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "jinja2 (>=3.1.5,<4.0.0)"
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-jinja2 = "^3.1.4"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
